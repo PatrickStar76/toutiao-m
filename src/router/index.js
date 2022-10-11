@@ -4,7 +4,7 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
 const routes = [
-  { path: '/' }
+  { path: '/login', name: 'login', component: () => import('@/views/login') }
 ]
 
 const router = new VueRouter({
