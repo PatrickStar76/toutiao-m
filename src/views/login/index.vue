@@ -4,6 +4,8 @@
     <van-nav-bar
       class="page-nav-bar"
       title="登录"
+    left-arrow
+    @click-left="$router.back()"
     />
     <!-- 登录表单 -->
     <van-form
@@ -67,7 +69,7 @@
 </template>
 
 <script>
-import { login } from '@/api/user'
+import { login, sendCode } from '@/api/user'
 export default {
   name: 'LoginIndex',
   data () {
@@ -111,12 +113,14 @@ export default {
           forbidClick: true,
           duration: 0 // 持续时间  默认2000  0 一直持续
         })
-        const res = await login(user)
-        console.log(res);
+        const { data } = await login(user)
+        // console.log(res);
+        this.$store.commit('GET_USER', data.data)
         this.$toast.success({
           message: '登录成功'
         })
       } catch (err) {
+        console.log(err);
         this.$toast.fail('登录失败')
       }
     },
@@ -127,6 +131,17 @@ export default {
         this.isShowBtn = false
       } catch (error) {
         return console.log('验证失败', error)
+      }
+      try {
+        await sendCode(this.user.mobile)
+        this.$toast('发送成功')
+      } catch (error) {
+        this.isShowBtn = true
+        if (error.response.status === 429) {
+          this.$toast('发送太频繁，请稍后重试')
+        } else {
+          this.$toast('发送失败')
+        }
       }
     }
   }
